@@ -255,7 +255,7 @@ class RoleplayAssistant:
 
 
     def run(self):
-
+        print('Start the process')
 
         # Load models and story state
         self.login_to_huggingface()
