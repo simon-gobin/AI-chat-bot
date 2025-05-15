@@ -1,0 +1,23 @@
+FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
+
+# Set basic environment settings
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    python3 python3-pip python3-dev git \
+    libglib2.0-0 libsm6 libxext6 libxrender-dev ffmpeg \
+    && apt-get clean
+
+# Upgrade pip & install Python packages
+RUN pip3 install --upgrade pip
+RUN pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+RUN pip3 install transformers diffusers accelerate pillow opencv-python
+
+# Add your script
+WORKDIR /app
+COPY image_extractor.py .
+
+# Run the script by default (override with CMD if needed)
+CMD ["python3", "image_extractor.py"]
