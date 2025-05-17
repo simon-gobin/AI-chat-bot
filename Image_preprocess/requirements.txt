@@ -1,6 +1,6 @@
-transformers>=4.36
-accelerate>=0.24
-torchvision>=0.15
-diffusers>=0.27
-opencv-python>=4.8
-Pillow>=10.0
+transformers
+accelerate
+torchvision
+diffusers
+opencv-python
+Pillow
