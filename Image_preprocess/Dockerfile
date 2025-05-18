@@ -22,4 +22,5 @@ WORKDIR /app
 COPY image.py .
 
 # Run your script by default
-CMD ["python3", "image.py"]
+ENTRYPOINT ["python3", "image.py"]
+
