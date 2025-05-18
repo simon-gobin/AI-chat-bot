@@ -55,6 +55,7 @@ class ImageExtractor:
 
 
     def video_extract(self, video_path):
+        video_name = os.path.splitext(os.path.basename(video_path))[0]
         vidcap = cv2.VideoCapture(video_path)
         total_frames = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
 
@@ -70,7 +71,7 @@ class ImageExtractor:
             success, image = vidcap.read()
             if success:
                 resized = cv2.resize(image, (self.image_size , self.image_size ))
-                filename = f"frame_{extracted:03d}.jpg"
+                filename = f"frame_{video_name}_{extracted:03d}.jpg"
                 output_path = os.path.join(self.image_output_folder, filename)
                 cv2.imwrite(output_path, resized)
                 extracted += 1
