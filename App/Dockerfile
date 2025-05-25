@@ -1,31 +1,27 @@
-# Use a CUDA-compatible base image
 FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
 
-# Set working directory
-WORKDIR /app
+# Set environment
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
 
-# Install Python and system dependencies
+# Install dependencies
 RUN apt-get update && apt-get install -y \
-    python3-pip \
-    python3-dev \
-    git \
-    libgl1-mesa-glx \
-    && rm -rf /var/lib/apt/lists/*
+    python3 python3-pip python3-dev git \
+    libglib2.0-0 libsm6 libxext6 libxrender-dev ffmpeg \
+    && apt-get clean
 
-# Create symbolic link for Python 3
-RUN ln -s /usr/bin/python3 /usr/bin/python
+# Upgrade pip & install Python packages
+RUN pip3 install --upgrade pip
 
-# Upgrade pip
-RUN pip install --upgrade pip
 
-# Copy only requirements first (for better caching)
-COPY requirements.txt .
+# Copy and install requirements
+COPY requirements.txt /tmp/requirements.txt
+RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
+RUN apt-get install -y git-lfs libssl-dev libz-dev
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of your app
+# Set working directory and copy your script
+WORKDIR /app
 COPY . .
-
-# Run the script
-CMD ["python", "app.py"]
+# Run your script by default
+ENTRYPOINT ["python3", "app.py"]

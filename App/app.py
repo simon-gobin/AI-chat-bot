@@ -1,6 +1,5 @@
 import subprocess
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline, M2M100Config, M2M100ForConditionalGeneration, M2M100Tokenizer
-import bitsandbytes
 import torch
 from diffusers import FluxPipeline
 from PIL import Image
@@ -9,7 +8,6 @@ import os
 from datetime import datetime
 import glob
 from dotenv import load_dotenv
-import os
 from llama_cpp import Llama
 
 load_dotenv()
@@ -41,7 +39,7 @@ class RoleplayAssistant:
         return LANGUAGES.get(choice, ("English", "en"))[1]  # default to English
 
     def login_to_huggingface(self):
-        token = os.getenv("hugging_token")
+        token = os.getenv("HF_TOKEN")
         if token:
             subprocess.run(
                 ["huggingface-cli", "login", "--token", token, "--add-to-git-credential"],
@@ -167,7 +165,7 @@ class RoleplayAssistant:
         chat_history = []
 
         if self.story_state['Language'] is None:
-            self.story_state['Language'] = choose_language()
+            self.story_state['Language'] = self.choose_language()
 
         language = self.story_state['Language']
         chat_history.append({"role": "system", "content": f"The user has chosen {language}. Let's create a character and story together by answer following question: "})
