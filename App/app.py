@@ -206,37 +206,19 @@ class RoleplayAssistant:
 
 
     def summarize_chat(self):
-        if not self.story_state.get('chat'):
-            print('⚠️ Error: no chat history to summarize.')
+        if not self.story_state.get("chat"):
+            print("⚠️ Error: no chat history to summarize.")
             return
-
-        # Generate summary
-        chat_text = " ".join([msg["content"] for msg in self.story_state['chat'][-5:]])
+    
+        # Summarize the last 5 messages
+        chat_text = " ".join([msg["content"] for msg in self.story_state["chat"][-5:]])
         summary = self.pipe_sum(chat_text, max_length=130, min_length=30, do_sample=False)[0]["summary_text"]
-        self.story_state['Summary of the situation'] = summary
+        self.story_state["Summary of the situation"] = summary
+        self.chat_add("system", f"📖 Manual summary updated: {summary}")
         self.save_json()
-
-
-
-
-        # Create a backup with no chat
-        backup = self.story_state.copy()
-        backup['chat'] = []  # Strip chat history for smaller file
-
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        base_name = os.path.splitext(self.json_path)[0]
-        backup_filename = f"{base_name}_backup_{timestamp}.json"
-
-        with open(backup_filename, "w") as f:
-            json.dump(backup, f, indent=2)
-
-        print(f"✅ Summary saved. Backup created: {backup_filename}")
-
-        # Keep only 5 latest backups
-        backup_files = sorted(glob.glob(f"{base_name}_backup_*.json"), reverse=True)
-        for old_backup in backup_files[5:]:
-            os.remove(old_backup)
-            print(f"🗑️ Removed old backup: {old_backup}")
+    
+        print(f"✅ Summary updated: {summary}")
+    
 
     def chat_add(self, role, content):
         if 'chat' not in self.story_state:
@@ -329,7 +311,14 @@ class RoleplayAssistant:
             self.image_count += 1
             self.chat_add("system", f"🖼️ Image generated: {image_path}")
             reply += f"\n🖼️ Image saved as {image_path}"
-    
+
+                # Auto-summary every 5 messages
+        if len(state.get('chat', [])) % 5 == 0:
+            chat_text = " ".join([msg["content"] for msg in state['chat'][-5:]])
+            summary = self.pipe_sum(chat_text, max_length=130, min_length=30, do_sample=False)[0]["summary_text"]
+            self.story_state['Summary of the situation'] = summary
+            self.chat_add("system", f"📖 Summary updated: {summary}")
+        
         self.save_json()
         return reply
 
