@@ -24,9 +24,6 @@ COPY requirements.txt .
 RUN python3 -m pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Install PyTorch with GPU support (CUDA 12.8)
-RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
-
 # Copy rest of the application
 COPY . .
 
