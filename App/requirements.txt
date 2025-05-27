@@ -1,6 +1,7 @@
+torch
+torchvision
 transformers
 diffusers
-torchvision
 Pillow
 numpy
 huggingface_hub
@@ -9,6 +10,8 @@ llama-cpp-python
 accelerate
 protobuf
 sentencepiece
-python-telegram-bot
+scipy
+tqdm
 fastapi
 uvicorn
+python-telegram-bot
