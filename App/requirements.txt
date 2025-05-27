@@ -10,3 +10,5 @@ accelerate
 protobuf
 sentencepiece
 python-telegram-bot
+fastapi
+uvicorn
