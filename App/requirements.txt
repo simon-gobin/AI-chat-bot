@@ -1,10 +1,12 @@
 transformers
 diffusers
-torch==2.1.0
 torchvision
 Pillow
-numpy<2.0
+numpy
 huggingface_hub
 python-dotenv
 llama-cpp-python
 accelerate
+protobuf
+sentencepiece
+python-telegram-bot

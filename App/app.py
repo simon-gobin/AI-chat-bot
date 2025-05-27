@@ -64,7 +64,8 @@ class RoleplayAssistant:
         )
 
         #image generator Balck forest
-        self.pipe = FluxPipeline.from_pretrained("black-forest-labs/FLUX.1-dev", torch_dtype=torch.bfloat16)
+        self.pipe = FluxPipeline.from_pretrained("black-forest-labs/FLUX.1-dev", torch_dtype=torch.float16,
+                                                 device_map="auto")
         self.pipe.enable_model_cpu_offload()
         self.pipe.safety_checker = None
         self.pipe.requires_safety_checker = False
