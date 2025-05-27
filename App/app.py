@@ -252,6 +252,88 @@ class RoleplayAssistant:
 
         self.save_json()
 
+    def respond(self, user_input: str) -> str:
+        """
+        Process user input via API (setup or roleplay), update JSON state, and return the assistant's reply.
+        """
+        state = self.story_state
+        translated_input = self.translation_to_eng(user_input)
+    
+        # Story setup flow
+        if state['Language'] is None:
+            state['Language'] = translated_input
+            self.chat_add("system", "Please choose your language")
+            self.chat_add("user", user_input)
+            self.save_json()
+            return "Now, please introduce yourself for the story."
+    
+        if state['User Character'] is None:
+            state['User Character'] = translated_input
+            self.chat_add("system", "First, introduce yourself for the story")
+            self.chat_add("user", user_input)
+            self.save_json()
+            return "Who would you like to interact with?"
+    
+        if state['System Character'] is None:
+            state['System Character'] = translated_input
+            self.chat_add("system", "Who do you want to interact with?")
+            self.chat_add("user", user_input)
+            self.save_json()
+            return "What is the situation or story you'd like to experience?"
+    
+        if state['Situation'] is None:
+            state['Situation'] = translated_input
+            self.chat_add("system", "What situation or story would you like?")
+            self.chat_add("user", user_input)
+            self.save_json()
+            return "Perfect! The story is ready. You can now begin roleplaying."
+    
+        # Roleplay phase
+        self.chat_add("user", user_input)
+    
+        base_prompt = f"""You are a roleplay assistant. Always respond in-character with immersive dialogue
+        and include narrative actions (didascalies) in the style of stage directions using asterisks (*).
+        Make interactions vivid, describing facial expressions, body language, and emotional tone.
+        If the user answer includes [text], use it to influence your response.
+        You are playing the character: {state['System Character']}
+        The story so far is: {state['Summary of the situation'] or state['Situation']}"""
+    
+        messages = [
+            {"role": "system", "content": base_prompt},
+            {"role": "user", "content": translated_input}
+        ]
+    
+        reply = self.model_output(messages)
+        reply = self.translation_from_eng(reply)
+        self.chat_add("system", reply)
+    
+        # Image generation trigger
+        if "show me" in translated_input.lower():
+            image_prompt = [
+                {"role": "system", "content": "You are an image prompt generator."},
+                {"role": "user", "content": f"Create an image prompt in English based on:
+                {self.story_state['chat'][-5:]} (max 70 characters)"}
+            ]
+            prompt = self.model_output_init(image_prompt)
+            image = self.pipe(
+                prompt,
+                height=1024,
+                width=1024,
+                guidance_scale=3.5,
+                num_inference_steps=50,
+                max_sequence_length=512,
+                generator=torch.Generator("cpu").manual_seed(0)
+            ).images[0]
+            image_path = f"story_{state['User Character']}_{self.image_count}.png"
+            image.save(image_path)
+            self.image_count += 1
+            self.chat_add("system", f"🖼️ Image generated: {image_path}")
+            reply += f"\n🖼️ Image saved as {image_path}"
+    
+        self.save_json()
+        return reply
+
+
 
     def run(self):
         print('Start the process')
