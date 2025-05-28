@@ -6,6 +6,11 @@ from telegram.ext import (
     ApplicationBuilder, CommandHandler, MessageHandler, CallbackQueryHandler,
     ContextTypes, CallbackContext, filters
 )
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+logger.info("🚀 Telegram bot is starting...")
 
 API_URL = "http://localhost:8000/chat"
 STATUS_URL = "http://localhost:8000/status"
@@ -69,5 +74,5 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler("status", status))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    print("🤖 Bot running...")
+    logging.info("🤖 Bot running...")
     app.run_polling()
