@@ -2,6 +2,12 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from app.roleplay_assistant import RoleplayAssistant
 import os
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+logger.info("🚀 API server is starting...")
+
 
 # Initialize the assistant and models
 assistant = RoleplayAssistant(json_path="story_state.json")
