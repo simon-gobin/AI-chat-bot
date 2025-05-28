@@ -21,8 +21,9 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Upgrade pip and install Python dependencies
-RUN python3 -m pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --break-system-packages -r requirements.txt
+
+
 
 # Copy rest of the application
 COPY . .
@@ -31,5 +32,5 @@ COPY . .
 EXPOSE 8000
 
 # Default command
-ENTRYPOINT ["uvicorn", "api_server:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["uvicorn", "api_server:app", "--host", "0.0.0.0", "--port", "8000", "--log-level", "info" ]
 
