@@ -33,7 +33,8 @@ async def select_language(update: Update, context: CallbackContext):
     lang_label = {"en": "English", "fr": "Français", "es": "Español"}[lang_code]
 
     # Call FastAPI to update the language
-    response = requests.post("http://localhost:8000/language", json={"lang_code": lang_code})
+    user_id = update.effective_user.id
+    requests.post("http://localhost:8000/language", json={"telegram_id": user_id, "lang_code": lang_code})
     if response.status_code == 200:
         await query.edit_message_text(text=f"✅ Language set to {lang_label}! You can now begin chatting.")
     else:
