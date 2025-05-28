@@ -14,6 +14,9 @@ app = FastAPI()
 class ChatMessage(BaseModel):
     message: str
 
+class LanguageUpdate(BaseModel):
+    lang_code: str  # "en", "fr", "es", etc.
+
 @app.post("/chat")
 def chat_endpoint(payload: ChatMessage):
     reply = assistant.respond(payload.message)
@@ -36,7 +39,8 @@ def reset_story():
     assistant.save_json()
     return {"message": "Story state has been reset."}
 
-@app.get("/languages")
-def list_languages():
-    from app.roleplay_assistant import LANGUAGES
-    return {k: {"name": v[0], "code": v[1]} for k, v in LANGUAGES.items()}
+@app.post("/language")
+def set_language(payload: LanguageUpdate):
+    assistant.story_state["Language"] = payload.lang_code
+    assistant.save_json()
+    return {"message": f"Language set to {payload.lang_code}"}
