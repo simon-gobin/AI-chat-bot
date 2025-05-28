@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from app.roleplay_assistant import RoleplayAssistant
+from app import RoleplayAssistant
 import os
 import logging
 

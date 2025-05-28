@@ -19,3 +19,5 @@ sudo docker run --gpus all -d \
   --name rp_bot_container \
   --env-file /home/simon/Desktop/AI-chat-bot/.env \
   rp_bot
+
+ log : sudo docker logs -f rp_bot_container

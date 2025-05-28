@@ -303,12 +303,16 @@ class RoleplayAssistant:
 
         # Image generation trigger
         if "show me" in translated_input.lower():
+            recent_messages = self.story_state['chat'][-5:]
+            recent_text = "\n".join(recent_messages) if isinstance(recent_messages[0], str) else str(recent_messages)
+
             image_prompt = [
                 {"role": "system", "content": "You are an image prompt generator."},
-                {"role": "user", "content": f"Create an image prompt in English based on:
-                 {self.story_state['chat'][-5:]}(max 70 characters)"}
+                {"role": "user",
+                 "content": f"Create an image prompt in English based on:\n{recent_text}\n(max 70 characters)"}
             ]
             prompt = self.model_output_init(image_prompt)
+
             image = self.pipe(
                 prompt,
                 height=1024,
