@@ -9,6 +9,15 @@ from datetime import datetime
 import glob
 from dotenv import load_dotenv
 from llama_cpp import Llama
+import logging
+
+# Set up basic logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
+logger = logging.getLogger(__name__)
+logger.info("🚀 App is starting...")
 
 load_dotenv()
 
@@ -49,6 +58,7 @@ class RoleplayAssistant:
             raise EnvironmentError("HF_TOKEN not found in environment.")
 
     def load_models(self):
+        logger.info("🔢 Loading tokenizer and Qwen3-4B model...")
         model_name = "Qwen/Qwen3-4B"
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModelForCausalLM.from_pretrained(
@@ -57,25 +67,33 @@ class RoleplayAssistant:
             device_map="auto"
         )
 
-
+        logger.info("🤖 Loading Llama-2-13B-GGUF...")
         self.llm = Llama.from_pretrained(
             repo_id="TheBloke/MythoMax-L2-13B-GGUF",
             filename="mythomax-l2-13b.Q4_K_M.gguf",
         )
 
         #image generator Balck forest
-        self.pipe = FluxPipeline.from_pretrained("black-forest-labs/FLUX.1-dev", torch_dtype=torch.float16,
-                                                 device_map="auto")
+        logger.info("🖼️ Loading image generation pipeline (FLUX)...")
+        self.pipe = FluxPipeline.from_pretrained(
+            "black-forest-labs/FLUX.1-dev",
+            torch_dtype=torch.float16,
+            device_map="balanced"
+        )
         self.pipe.enable_model_cpu_offload()
         self.pipe.safety_checker = None
         self.pipe.requires_safety_checker = False
 
         # summarization
+        logger.info("📖 Loading summarization pipeline...")
         self.pipe_sum = pipeline("summarization", model="facebook/bart-large-cnn")
 
         #translate
+        logger.info("🗣️ Loading translation pipeline...")
         self.translation_model = M2M100ForConditionalGeneration.from_pretrained("facebook/m2m100_418M")
         self.translation_tokenizer = M2M100Tokenizer.from_pretrained("facebook/m2m100_418M")
+
+
 
 
 
