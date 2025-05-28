@@ -15,7 +15,8 @@ class ChatMessage(BaseModel):
     message: str
 
 class LanguageUpdate(BaseModel):
-    lang_code: str  # "en", "fr", "es", etc.
+    telegram_id: int
+    lang_code: str
 
 @app.post("/chat")
 def chat_endpoint(payload: ChatMessage):
@@ -39,8 +40,15 @@ def reset_story():
     assistant.save_json()
     return {"message": "Story state has been reset."}
 
+
 @app.post("/language")
 def set_language(payload: LanguageUpdate):
-    assistant.story_state["Language"] = payload.lang_code
+    user_id = payload.telegram_id
+    lang = payload.lang_code
+
+    if user_id not in assistant.story_state:
+        assistant.story_state[user_id] = {}
+
+    assistant.story_state[user_id]["Language"] = lang
     assistant.save_json()
-    return {"message": f"Language set to {payload.lang_code}"}
+    return {"message": f"Language set to {lang} for user {user_id}"}
