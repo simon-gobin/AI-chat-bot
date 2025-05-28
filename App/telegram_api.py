@@ -32,19 +32,12 @@ async def select_language(update: Update, context: CallbackContext):
     lang_code = query.data.replace("lang_", "")
     lang_label = {"en": "English", "fr": "Français", "es": "Español"}[lang_code]
 
-    # Load story state
-    try:
-        with open(STORY_STATE_FILE, "r", encoding="utf-8") as f:
-            story_state = json.load(f)
-    except FileNotFoundError:
-        story_state = {}
-
-    # Update and save
-    story_state["Language"] = lang_code
-    with open(STORY_STATE_FILE, "w", encoding="utf-8") as f:
-        json.dump(story_state, f, indent=4)
-
-    await query.edit_message_text(text=f"✅ Language set to {lang_label}! You can now begin chatting.")
+    # Call FastAPI to update the language
+    response = requests.post("http://localhost:8000/language", json={"lang_code": lang_code})
+    if response.status_code == 200:
+        await query.edit_message_text(text=f"✅ Language set to {lang_label}! You can now begin chatting.")
+    else:
+        await query.edit_message_text(text="❌ Failed to set language.")
 
 # 🔄 Reset conversation
 async def reset(update: Update, context: ContextTypes.DEFAULT_TYPE):
